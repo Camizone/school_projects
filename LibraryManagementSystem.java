@@ -1,4 +1,4 @@
-package schoolman;
+package project;
 
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
@@ -15,9 +15,10 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
 class DynamicArray<T> {
-    private final T[] array;
+    private T[] array;
+    private T[] temp;
     private int count;
-    private static final int CAPACITY = 100;
+    private static int CAPACITY = 100;
     
 
     @SuppressWarnings("unchecked")
@@ -27,6 +28,9 @@ class DynamicArray<T> {
     }
 
     public void add(T element) {
+    	if(count==CAPACITY) {
+    		growSize();
+    	}
         for (int i = 0; i < CAPACITY; i++) {
             if (array[i] == null) {
                 array[i] = element;
@@ -37,6 +41,11 @@ class DynamicArray<T> {
     }
 
     public void add(int index, T element) {
+    	if(index>=CAPACITY) {
+    		while(index>=CAPACITY) {
+    			growSize();
+    		}
+    	}
         if (index >= 0 && index < CAPACITY) {
             if (array[index] == null && element != null) {
                 count++;
@@ -65,6 +74,18 @@ class DynamicArray<T> {
         }
         return null;
     }
+    
+    @SuppressWarnings("unchecked")
+	public void growSize()   
+    {    
+
+    temp = (T[]) new Object[CAPACITY+10];
+    for (int i = 0; i < CAPACITY; i++){
+    	temp[i] = array[i];   
+    }   
+    array = (T[]) temp;   
+    CAPACITY= CAPACITY+10;   
+    }   
 
     public int size() {
         return count;
@@ -74,7 +95,7 @@ class DynamicArray<T> {
         return count == 0;
     }
 
-    public int capacity() {
+    public static int capacity() {
         return CAPACITY;
     }
 }
@@ -139,7 +160,7 @@ class Library {
 
     public String getAllBooks() {
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < books.capacity(); i++) {
+        for (int i = 0; i < DynamicArray.capacity(); i++) {
             Book book = books.get(i);
             if (book != null) {
                 sb.append(i).append(": ").append(book).append("\n");
@@ -222,9 +243,14 @@ public class LibraryManagementSystemGUI extends JFrame {
                 if (!title.isEmpty() && !author.isEmpty() && !quantity.isEmpty()) {
                     Book book = new Book(title, author, quantity);
                     
+                    
+                    
                     if (!indexText.isEmpty()) {
                         try {
                             int index = Integer.parseInt(indexText);
+                            
+                            
+                            
                             library.insertBook(index, book);
                             displayArea.setText("Book inserted at index " + index + " successfully.");
                         } catch (NumberFormatException ex) {
@@ -308,7 +334,19 @@ public class LibraryManagementSystemGUI extends JFrame {
         totalBooksButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                displayArea.setText("Total number of unique books: " + library.getTotalBooks());
+            	int CAP = DynamicArray.capacity();
+            	int temp = 0;
+            	int sum = 0;
+            	
+            	for(int i=0; i<=CAP; i++ ) {
+            		Book book = library.searchBook(i);
+            		if(book!=null) {
+            			temp = Integer.parseInt(book.getQuantity());
+                		sum += temp;
+            		}
+            	}
+                displayArea.setText("Total number of unique books: " + library.getTotalBooks()
+                		+ "\nTotal number of books: "+sum);
             }
         });
     }
