@@ -1,4 +1,4 @@
-package schoolman;
+package project;
 
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
